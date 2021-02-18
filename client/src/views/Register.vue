@@ -1,20 +1,27 @@
 <template>
-  <div class="user-form">
+  <div class="user__form">
     <div class="form__inner">
       <app-form
         :title="title"
         :btnName="btnName"
         :disabledBtn="!getValid"
         :error="error"
-        @submitForm="loginHandler"
+        @submitForm="registerHandler"
       >
         <div class="login">
-          <span>Нет аккаунта?</span>
-          <router-link class="form__link" to="/register">
-            Зарегистрироваться</router-link
-          >
+          <span>Уже есть аккаунт?</span>
+          <router-link class="form__link" to="/login"> Войти</router-link>
         </div>
         <div class="form__body">
+          <div class="wrapper__input form__input">
+            <label class="input__title">Имя</label>
+            <input
+              type="text"
+              class="input"
+              placeholder="Введите Ваше имя"
+              v-model="user.name"
+            />
+          </div>
           <div class="wrapper__input form__input">
             <label class="input__title">Email</label>
             <input
@@ -33,6 +40,19 @@
               v-model="user.password"
             />
           </div>
+          <div class="wrapper__checkbox form__input">
+            <input
+              class="checkbox"
+              id="accept-terms"
+              type="checkbox"
+              v-model="terms"
+            />
+            <label for="accept-terms" class="input__title checkbox-title"
+              >Принимаю
+              <router-link class="form__link" to="/">условия</router-link>
+              использования</label
+            >
+          </div>
         </div>
       </app-form>
     </div>
@@ -41,37 +61,41 @@
 
 <script>
 import AppForm from '@/components/forms/AppForm'
-import { required, minLength, email } from 'vuelidate/lib/validators'
 import { mapActions } from 'vuex'
+import { required, minLength, email } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'Login',
+  name: 'Register',
   components: {
     AppForm,
   },
   data: () => ({
     user: {
+      name: '',
       email: '',
       password: '',
     },
     error: '',
-    title: 'Вход',
-    btnName: 'Войти',
+    terms: false,
+    title: 'Регистрация',
+    btnName: 'Зарегистрироваться',
   }),
   computed: {
     getValid() {
-      const properties = ['email', 'password']
-      return properties.every((item) => !this.$v.user[item].$invalid)
+      const properties = ['name', 'email', 'password']
+      const validUser = properties.every((item) => !this.$v.user[item].$invalid)
+      return validUser && this.terms ? true : false
     },
   },
   methods: {
     ...mapActions({
-      login: 'user/login',
+      register: 'user/register',
     }),
-    async loginHandler() {
-      const response = await this.login(this.user)
-      if (response.status === 200) {
-        this.$router.push('/')
+    async registerHandler() {
+      const response = await this.register(this.user)
+      if (response.status === 201) {
+        this.$router.push('/login')
+        return
       } else {
         this.error = response.data.message
       }
@@ -79,9 +103,11 @@ export default {
   },
   validations: {
     user: {
+      name: { required },
       email: { required, email },
       password: { required, minLength: minLength(6) },
     },
+    terms: { required },
   },
 }
 </script>

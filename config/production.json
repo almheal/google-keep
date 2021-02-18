@@ -1,4 +1,5 @@
 {
   "port": 5000,
-  "mongoUrl": "mongodb+srv://almheal:iHeaL__99@cluster0.jeimh.mongodb.net/google-keep?retryWrites=true&w=majority"
+  "mongoUrl": "mongodb+srv://almheal:iHeaL__99@cluster0.jeimh.mongodb.net/google-keep?retryWrites=true&w=majority",
+  "secretToken": "almheal"
 }
